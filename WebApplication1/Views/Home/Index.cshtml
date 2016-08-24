@@ -1,0 +1,59 @@
+﻿<div class="jumbotron">
+    <h1>PDF Downloader</h1>
+
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h2>Paste in \n separated file urls</h2>
+        <div>
+            <textarea type="text" name="txt1" id="txt1" rows="10" cols="150"></textarea>
+            <br /><br />
+            <label>EX: C:\PDFDownload2\ <br/> (the folder MUST exist or it will error due to security)</label><br/>
+            <input type="text" id="targetLocation" name="targetLocation"/>
+            <br /><br /><br /><br />
+            <button class="btn btn-lg btn-success" onclick="test()" id="sub">Download PDF Files</button>
+            <br /><br /><br />
+            <div id="resultDiv"></div>
+            <ul class="mylist"></ul>
+        </div>
+        <script>
+            function test() {
+                var filenamedd = [];
+                var model = $("#txt1").val().split("\n");
+
+                var i;
+                for (i = 0; i < model.length; ++i) {
+                    filenamedd.push({ name: model[i] });
+                }
+
+                var targetLoc = $("#targetLocation").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: 'api/values/GetPDFs',
+                    contentType: "application/json",
+                    data: JSON.stringify({ targetLocation: targetLoc, Files: filenamedd })
+
+                }).done(function (response) {
+                    if (response.length > 0) {
+                        var cList = $('ul.mylist')
+                        $.each(response, function (i) {
+                            var li = $('<li/>')
+                                .addClass('ui-menu-item')
+                                .attr('role', 'menuitem')
+                                .appendTo(cList);
+                            var aaa = $('<a/>')
+                                .addClass('ui-all')
+                                .text(response[i])
+                                .appendTo(li);
+                        });
+                        $("#resultDiv").html("The following files failed to download:");
+                    }
+                    else {
+                        $("#resultDiv").html("completed downloading " + filenamedd.length + " files");
+                    }
+                });
+            }
+        </script>
+    </div>
+</div>
